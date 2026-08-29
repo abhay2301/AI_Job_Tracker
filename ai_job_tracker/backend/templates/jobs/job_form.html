@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if object %}Edit Application{% else %}Add Application{% endif %}
+{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+
+                <h3 class="fw-bold mb-4">
+                    <i class="bi 
+                        {% if object %}bi-pencil-square{% else %}bi-plus-circle{% endif %} 
+                        me-2 text-primary">
+                    </i>
+                    {% if object %}Edit Application{% else %}Add Job Application{% endif %}
+                </h3>
+
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="row g-3">
+
+                        <!-- Company & Position -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Company</label>
+                            {{ form.company }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Position</label>
+                            {{ form.position }}
+                        </div>
+
+                        <!-- Job URL -->
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Job URL</label>
+                            {{ form.job_url }}
+                        </div>
+
+                        <!-- Status & Date -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Status</label>
+                            {{ form.status }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Application Date</label>
+                            {{ form.application_date }}
+                        </div>
+
+                        <!-- Job Description -->
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Job Description</label>
+                            {{ form.job_description }}
+                        </div>
+
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check2 me-1"></i>Save Application
+                        </button>
+                        <a href="{% url 'jobs:list' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-lg me-1"></i>Cancel
+                        </a>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

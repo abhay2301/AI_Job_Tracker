@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Upload Resume | AI Job Tracker
+{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+
+    <div class="col-lg-7">
+
+        <div class="card border-0 shadow-sm">
+
+            <div class="card-body p-4">
+
+                <h3 class="fw-bold mb-2">
+                    <i class="bi bi-cloud-upload me-2 text-primary"></i>Upload Resume
+                </h3>
+
+                <p class="text-muted">
+                    Upload a PDF resume. The system will extract the text for future AI analysis.
+                </p>
+
+                <form method="post" enctype="multipart/form-data">
+
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+
+                    <div class="row">
+
+                        <div class="col-md-12 mb-3">
+
+                            <label class="form-label fw-semibold">Resume Title</label>
+
+                            {{ form.title }}
+
+                            {% if form.title.errors %}
+                                <div class="text-danger small mt-1">{{ form.title.errors }}</div>
+                            {% endif %}
+
+                        </div>
+
+                        <div class="col-md-12 mb-3">
+
+                            <label class="form-label fw-semibold">PDF Resume</label>
+
+                            {{ form.file }}
+
+                            <div class="form-text">
+                                <i class="bi bi-info-circle me-1"></i>PDF only. Maximum size: 5 MB.
+                            </div>
+
+                            {% if form.file.errors %}
+                                <div class="text-danger small mt-1">{{ form.file.errors }}</div>
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                    <div class="d-flex gap-2 mt-2">
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-upload me-1"></i>Upload Resume
+                        </button>
+
+                        <a href="{% url 'resumes:list' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-lg me-1"></i>Cancel
+                        </a>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}
+    My Resumes | AI Job Tracker
+{% endblock %}
+
+{% block content %}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+
+    <div>
+
+        <h2 class="fw-bold">
+            <i class="bi bi-file-earmark-person me-2 text-primary"></i>My Resumes
+        </h2>
+
+        <p class="text-muted">Manage your resumes for AI job matching.</p>
+
+    </div>
+
+    <a href="{% url 'resumes:upload' %}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i>Upload Resume
+    </a>
+
+</div>
+
+<div class="row g-4">
+
+    {% for resume in resumes %}
+
+        <div class="col-md-6 col-lg-4">
+
+            <div class="card border-0 shadow-sm h-100 hover-card">
+
+                <div class="card-body">
+
+                    <div class="d-flex align-items-start justify-content-between">
+
+                        <h5 class="fw-bold mb-1">
+                            <i class="bi bi-file-earmark-pdf text-danger me-1"></i>{{ resume.title }}
+                        </h5>
+
+                        <span class="badge bg-light text-dark">
+                            <i class="bi bi-clock me-1"></i>{{ resume.uploaded_at|date:"d M Y" }}
+                        </span>
+
+                    </div>
+
+                    <p class="text-muted small mb-2">
+                        Uploaded: {{ resume.uploaded_at|date:"d M Y H:i" }}
+                    </p>
+
+                    <p class="small text-secondary">
+                        {{ resume.extracted_text|truncatechars:120 }}
+                    </p>
+
+                    <div class="d-flex gap-2 mt-3">
+
+                        <a href="{% url 'resumes:detail' resume.pk %}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-eye me-1"></i>View
+                        </a>
+
+                        <a href="{% url 'resumes:download' resume.pk %}" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-download me-1"></i>Download
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    {% empty %}
+
+        <div class="col-12">
+
+            <div class="text-center py-5">
+
+                <i class="bi bi-file-earmark-x display-3 text-muted"></i>
+
+                <h5 class="mt-3">No resumes uploaded.</h5>
+
+                <p class="text-muted">Upload your resume to start AI-powered job analysis.</p>
+
+                <a href="{% url 'resumes:upload' %}" class="btn btn-primary">
+                    <i class="bi bi-plus-lg me-1"></i>Upload Resume
+                </a>
+
+            </div>
+
+        </div>
+
+    {% endfor %}
+
+</div>
+
+{% endblock %}

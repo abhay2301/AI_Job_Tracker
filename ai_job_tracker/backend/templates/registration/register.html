@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Register | AI Job Tracker{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+
+    <div class="col-md-5">
+
+        <div class="card shadow-sm border-0">
+
+            <div class="card-body p-4">
+
+                <h2 class="text-center mb-4">
+                    Create Account
+                </h2>
+
+                <form method="post">
+
+                    {% csrf_token %}
+
+                    {{ form.as_p }}
+
+                    <button class="btn btn-primary w-100">
+                        Create Account
+                    </button>
+
+                </form>
+
+                <div class="text-center mt-3">
+
+                    Already have an account?
+
+                    <a href="{% url 'login' %}">
+                        Login
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
