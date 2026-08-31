@@ -11,3 +11,5 @@ redis
 PyMuPDF
 requests
 python-dotenv
+google-genai
+pydantic
