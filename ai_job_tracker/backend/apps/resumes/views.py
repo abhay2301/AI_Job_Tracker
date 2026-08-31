@@ -1,5 +1,5 @@
 import pymupdf
-
+import re
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import FileResponse
@@ -87,7 +87,7 @@ def resume_upload(request):
     )
 
 
-import re
+
 
 @login_required
 def resume_detail(request, pk):
