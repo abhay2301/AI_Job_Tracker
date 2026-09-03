@@ -20,6 +20,7 @@ from django.urls import include, path
 from django.conf.urls.static import static
 from django.conf import settings
 from apps.jobs.views import dashboard
+from apps.users.views import login_view, verify_otp_view
 
 
 urlpatterns = [
@@ -49,18 +50,22 @@ urlpatterns = [
         "resumes/",
         include("apps.resumes.urls"),
     ),
-    
+
     path(
         "ai/",
         include("apps.ai_analysis.urls"),
     ),
-    
+
     path(
         "login/",
-        auth_views.LoginView.as_view(
-            template_name="registration/login.html"
-        ),
+        login_view,
         name="login",
+    ),
+
+    path(
+        "verify-otp/",
+        verify_otp_view,
+        name="verify_otp",
     ),
 
     path(

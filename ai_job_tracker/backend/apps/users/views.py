@@ -1,8 +1,12 @@
+from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth import login
+from django.contrib.auth import authenticate, get_user_model, login
+from django.core.mail import send_mail
 from django.shortcuts import redirect, render
+from django.utils import timezone
 
-from .forms import RegisterForm
+from .forms import LoginForm, OTPForm, RegisterForm
+from .models import UserOTP
 
 
 def register_view(request):
@@ -13,16 +17,14 @@ def register_view(request):
         form = RegisterForm(request.POST)
 
         if form.is_valid():
-            user = form.save()
-
-            login(request, user)
+            form.save()
 
             messages.success(
                 request,
-                "Your account has been created successfully."
+                "Your account has been created successfully. Please log in with OTP verification."
             )
 
-            return redirect("dashboard")
+            return redirect("login")
 
     else:
         form = RegisterForm()
@@ -31,4 +33,99 @@ def register_view(request):
         request,
         "registration/register.html",
         {"form": form},
+    )
+
+
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect("dashboard")
+
+    if request.method == "POST":
+        form = LoginForm(request.POST)
+
+        if form.is_valid():
+            user = authenticate(
+                request,
+                username=form.cleaned_data["username"],
+                password=form.cleaned_data["password"],
+            )
+
+            if user is None:
+                messages.error(request, "Invalid username or password.")
+            else:
+                request.session["pending_user_id"] = user.pk
+                otp = UserOTP.generate_for_user(user)
+
+                try:
+                    send_mail(
+                        subject="Your AI Job Tracker login code",
+                        message=(
+                            f"Your one-time password is {otp.otp_code}. "
+                            "It expires in 5 minutes."
+                        ),
+                        from_email=getattr(settings, "DEFAULT_FROM_EMAIL", "no-reply@ai-job-tracker.local"),
+                        recipient_list=[user.email],
+                        fail_silently=False,
+                    )
+                except Exception:
+                    messages.warning(
+                        request,
+                        "OTP email could not be sent, but the code was generated for testing."
+                    )
+
+                messages.success(
+                    request,
+                    "A one-time password has been sent to your email."
+                )
+                return redirect("verify_otp")
+
+    else:
+        form = LoginForm()
+
+    return render(
+        request,
+        "registration/login.html",
+        {"form": form},
+    )
+
+
+def verify_otp_view(request):
+    pending_user_id = request.session.get("pending_user_id")
+
+    if not pending_user_id:
+        return redirect("login")
+
+    user = get_user_model().objects.filter(pk=pending_user_id).first()
+
+    if user is None:
+        request.session.pop("pending_user_id", None)
+        return redirect("login")
+
+    if request.method == "POST":
+        form = OTPForm(request.POST)
+
+        if form.is_valid():
+            otp = user.otps.filter(
+                used_at__isnull=True,
+                expires_at__gt=timezone.now(),
+            ).order_by("-created_at").first()
+
+            if otp and otp.is_valid(form.cleaned_data["otp_code"]):
+                otp.used_at = timezone.now()
+                otp.save(update_fields=["used_at"])
+
+                login(request, user)
+                request.session.pop("pending_user_id", None)
+
+                messages.success(request, "OTP verified successfully. You are now logged in.")
+                return redirect("dashboard")
+
+            messages.error(request, "invalid or expired OTP code.")
+    else:
+        form = OTPForm()
+
+    return render(
+        request,
+        "registration/verify_otp.html",
+        {"form": form, "user": user},
     )
