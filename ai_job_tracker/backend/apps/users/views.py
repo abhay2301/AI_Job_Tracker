@@ -102,6 +102,14 @@ def verify_otp_view(request):
         return redirect("login")
 
     if request.method == "POST":
+        # Rate limiting: Max 3 failed attempts
+        failed_attempts = request.session.get("otp_failed_attempts", 0)
+        if failed_attempts >= 3:
+            messages.error(request, "Too many failed attempts. Please login again.")
+            request.session.pop("pending_user_id", None)
+            request.session.pop("otp_failed_attempts", None)
+            return redirect("login")
+
         form = OTPForm(request.POST)
 
         if form.is_valid():
@@ -116,10 +124,12 @@ def verify_otp_view(request):
 
                 login(request, user)
                 request.session.pop("pending_user_id", None)
+                request.session.pop("otp_failed_attempts", None)
 
                 messages.success(request, "OTP verified successfully. You are now logged in.")
                 return redirect("dashboard")
 
+            request.session["otp_failed_attempts"] = failed_attempts + 1
             messages.error(request, "invalid or expired OTP code.")
     else:
         form = OTPForm()
