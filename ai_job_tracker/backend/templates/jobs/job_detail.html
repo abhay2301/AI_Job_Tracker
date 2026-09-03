@@ -103,6 +103,20 @@
                     </div>
                 </div>
             </div>
+            <div class="mt-3 text-end">
+                <form action="{% url 'ai_analysis:analyze_job' job.pk %}" method="post" class="d-inline-flex align-items-center gap-2">
+                    {% csrf_token %}
+                    <span class="text-muted small">Analyze again:</span>
+                    <select name="resume_id" class="form-select form-select-sm" style="max-width: 200px;" required>
+                        {% for resume in resumes %}
+                            <option value="{{ resume.id }}" {% if resume.id == ai_analysis.resume.id %}selected{% endif %}>{{ resume.title }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-arrow-repeat me-1"></i>Re-analyze
+                    </button>
+                </form>
+            </div>
         {% else %}
             <div class="mt-3 p-4 bg-light rounded-3 text-center">
                 <i class="bi bi-robot display-4 text-muted"></i>
