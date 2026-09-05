@@ -5,76 +5,50 @@
 {% block content %}
 
 <div class="row justify-content-center">
-
     <div class="col-md-5">
-
         <div class="card shadow-sm border-0">
-
             <div class="card-body p-4">
-
-                <h2 class="text-center mb-4">
-                    Welcome Back
-                </h2>
-
-                <p class="text-center text-muted">
-                    Sign in to manage your job applications.
-                </p>
+                <h2 class="text-center mb-4">Welcome Back</h2>
+                <p class="text-center text-muted">Sign in to manage your job applications.</p>
 
                 <form method="post">
-
                     {% csrf_token %}
 
-                    {% if form.errors %}
+                    {% if form.non_field_errors %}
                         <div class="alert alert-danger">
-                            Invalid username or password.
+                            {{ form.non_field_errors|join:", " }}
                         </div>
                     {% endif %}
 
                     <div class="mb-3">
-                        <label class="form-label">
-                            Username
-                        </label>
-
-                        <input
-                            type="text"
-                            name="username"
-                            class="form-control"
-                            required
-                        >
+                        <label for="{{ form.username.id_for_label }}" class="form-label">Username</label>
+                        {{ form.username }}
+                        {% if form.username.errors %}
+                            <div class="text-danger small mt-1">{{ form.username.errors|join:", " }}</div>
+                        {% endif %}
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">
-                            Password
-                        </label>
-
-                        <input
-                            type="password"
-                            name="password"
-                            class="form-control"
-                            required
-                        >
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label for="{{ form.password.id_for_label }}" class="form-label mb-0">Password</label>
+                            <a href="{% url 'password_reset' %}" class="small text-decoration-none">Forgot password?</a>
+                        </div>
+                        {{ form.password }}
+                        {% if form.password.errors %}
+                            <div class="text-danger small mt-1">{{ form.password.errors|join:", " }}</div>
+                        {% endif %}
                     </div>
 
-                    <button class="btn btn-primary w-100">
-                        Login
-                    </button>
-
+                    <button class="btn btn-primary w-100" type="submit">Send OTP</button>
                 </form>
 
                 <div class="text-center mt-3">
                     Don't have an account?
-                    <a href="{% url 'users:register' %}">
-                        Register
-                    </a>
+                    <a href="{% url 'users:register' %}">Register</a>
                 </div>
-
             </div>
-
         </div>
-
     </div>
-
 </div>
 
 {% endblock %}

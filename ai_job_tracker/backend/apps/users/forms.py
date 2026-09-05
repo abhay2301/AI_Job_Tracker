@@ -36,3 +36,40 @@ class RegisterForm(UserCreationForm):
             "class": "form-control",
             "placeholder": "Confirm password",
         })
+
+
+class LoginForm(forms.Form):
+    username = forms.CharField(
+        label="Username or Email",
+        max_length=150,
+        widget=forms.TextInput(attrs={
+            "class": "form-control",
+            "placeholder": "Enter username or email",
+        }),
+    )
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            "class": "form-control",
+            "placeholder": "Enter password",
+        }),
+    )
+
+
+class OTPForm(forms.Form):
+    otp_code = forms.CharField(
+        max_length=6,
+        min_length=6,
+        widget=forms.TextInput(attrs={
+            "class": "form-control",
+            "placeholder": "Enter 6-digit OTP",
+            "inputmode": "numeric",
+        }),
+    )
+
+    def clean_otp_code(self):
+        otp_code = self.cleaned_data["otp_code"].strip()
+
+        if not otp_code.isdigit():
+            raise forms.ValidationError("OTP must contain only digits.")
+
+        return otp_code
