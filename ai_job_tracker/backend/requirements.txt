@@ -10,7 +10,6 @@ celery
 redis
 PyMuPDF
 requests
-python-dotenv
 google-genai
 pydantic
 whitenoise==6.8.2
