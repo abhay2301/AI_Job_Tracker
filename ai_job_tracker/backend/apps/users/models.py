@@ -31,7 +31,7 @@ class UserOTP(models.Model):
     @classmethod
     def generate_for_user(cls, user):
         otp_code = str(random.randint(000000, 999999))
-        expires_at = timezone.now() + timedelta(minutes=5)
+        expires_at = timezone.now() + timedelta(minutes=1)
 
         return cls.objects.create(
             user=user,

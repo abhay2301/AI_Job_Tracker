@@ -40,10 +40,11 @@ class RegisterForm(UserCreationForm):
 
 class LoginForm(forms.Form):
     username = forms.CharField(
+        label="Username or Email",
         max_length=150,
         widget=forms.TextInput(attrs={
             "class": "form-control",
-            "placeholder": "Enter username",
+            "placeholder": "Enter username or email",
         }),
     )
     password = forms.CharField(

@@ -44,11 +44,26 @@ def login_view(request):
         form = LoginForm(request.POST)
 
         if form.is_valid():
-            user = authenticate(
-                request,
-                username=form.cleaned_data["username"],
-                password=form.cleaned_data["password"],
-            )
+            username_or_email = form.cleaned_data["username"]
+            password = form.cleaned_data["password"]
+
+            user_model = get_user_model()
+            try:
+                if "@" in username_or_email:
+                    user_obj = user_model.objects.get(email__iexact=username_or_email)
+                else:
+                    user_obj = user_model.objects.get(username__iexact=username_or_email)
+            except user_model.DoesNotExist:
+                user_obj = None
+
+            if user_obj:
+                user = authenticate(
+                    request,
+                    username=user_obj.username,
+                    password=password,
+                )
+            else:
+                user = None
 
             if user is None:
                 messages.error(request, "Invalid username or password.")
@@ -61,7 +76,7 @@ def login_view(request):
                         subject="Your AI Job Tracker login code",
                         message=(
                             f"Your one-time password is {otp.otp_code}. "
-                            "It expires in 5 minutes."
+                            "It expires in 1 minute."
                         ),
                         from_email=getattr(settings, "DEFAULT_FROM_EMAIL", "no-reply@ai-job-tracker.local"),
                         recipient_list=[user.email],
@@ -90,6 +105,9 @@ def login_view(request):
 
 
 def verify_otp_view(request):
+    if request.user.is_authenticated:
+        return redirect("dashboard")
+
     pending_user_id = request.session.get("pending_user_id")
 
     if not pending_user_id:
@@ -99,6 +117,17 @@ def verify_otp_view(request):
 
     if user is None:
         request.session.pop("pending_user_id", None)
+        return redirect("login")
+
+    has_valid_otp = user.otps.filter(
+        used_at__isnull=True,
+        expires_at__gt=timezone.now()
+    ).exists()
+
+    if not has_valid_otp:
+        request.session.pop("pending_user_id", None)
+        request.session.pop("otp_failed_attempts", None)
+        messages.error(request, "Your login session expired. Please try again.")
         return redirect("login")
 
     if request.method == "POST":
@@ -137,5 +166,5 @@ def verify_otp_view(request):
     return render(
         request,
         "registration/verify_otp.html",
-        {"form": form, "user": user},
+        {"form": form, "pending_user": user},
     )
